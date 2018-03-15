@@ -1,0 +1,31 @@
+sudo: required
+dist: trusty
+
+services:
+  - docker
+
+env:
+  global:
+    - DOCKER_REPO="oanhnn/mailcatcher"
+    # DOCKER_USER
+    # DOCKER_PASSWORD
+
+before_script:
+  - export BUILD_TAG=${TRAVIS_COMMIT::8}
+  - export BUILD_CONTAINER="mailcatcher-$BUILD_TAG"
+
+script:
+  - docker build -t $DOCKER_REPO:$BUILD_TAG --build-arg BUILD_DATE=$(date -u -Iseconds) --build-arg VCS_REF=$BUILD_TAG .
+  - docker run -d --name $BUILD_CONTAINER $DOCKER_REPO:$BUILD_TAG;
+  - docker ps
+
+after_success:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+  - if [[ ! -z "$TRAVIS_TAG" ]]; then
+    docker tag $DOCKER_REPO:$BUILD_TAG $DOCKER_REPO:$TRAVIS_TAG;
+    docker push $DOCKER_REPO:$TRAVIS_TAG;
+    fi
+  - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+    docker tag $DOCKER_REPO:$BUILD_TAG $DOCKER_REPO:latest;
+    docker push $DOCKER_REPO:latest;
+    fi
