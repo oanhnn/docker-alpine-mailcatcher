@@ -14,7 +14,7 @@ RUN apk add --update --no-cache \
     ruby-rdoc \
     sqlite-libs \
     yaml \
- && apk add --update --no-cache --virtual make g++ gcc sqlite-dev ruby-dev \
+ && apk add --update --no-cache --virtual .build-deps make g++ gcc sqlite-dev ruby-dev \
  && gem install mailcatcher -v $MAILCATCHER_VERSION \
  && apk del .build-deps
 
