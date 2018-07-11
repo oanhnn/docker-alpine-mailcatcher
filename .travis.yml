@@ -16,9 +16,9 @@ before_script:
 
 script:
   - docker build -t $DOCKER_REPO:$BUILD_TAG .
-  - docker run -d -p 80:1080 -p 25:1025 --name $BUILD_CONTAINER $DOCKER_REPO:$BUILD_TAG;
+  - docker run --rm -d -p 127.0.0.1:1080:1080 -p 127.0.0.1:1025:1025 --name $BUILD_CONTAINER $DOCKER_REPO:$BUILD_TAG
   - sleep 30 && docker ps && docker logs $BUILD_CONTAINER
-  - curl --retry 10 --retry-delay 2 -I http://127.0.0.1:80
+  - curl --retry 10 --retry-delay 2 -I http://127.0.0.1:1080/
 
 after_success:
   - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
